@@ -1,16 +1,16 @@
 {
-  "name": "telegram_bot_test",
-  "version": "1.0.1",
-  "description": "",
-  "main": "index.js",
+  "name": "@codefeathers/ssht",
+  "version": "0.0.1",
+  "description": "SSH over Telegram",
+  "main": "app.js",
   "dependencies": {
     "telegraf": "^3.21.2"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node index.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Pavan Jadhaw @pavanjadhaw",
   "license": "MIT"
 }

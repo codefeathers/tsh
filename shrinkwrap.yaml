@@ -1,0 +1,58 @@
+dependencies:
+  telegraf: 3.21.2
+packages:
+  /@types/node/10.5.2:
+    dev: false
+    resolution:
+      integrity: sha512-m9zXmifkZsMHZBOyxZWilMwmTlpC8x5Ty360JKTiXvlXZfBWYpsg9ZZvP/Ye+iZUh+Q+MxDLjItVTWIsfwz+8Q==
+  /debug/3.1.0:
+    dependencies:
+      ms: 2.0.0
+    dev: false
+    resolution:
+      integrity: sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
+  /ms/2.0.0:
+    dev: false
+    resolution:
+      integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
+  /node-fetch/2.1.2:
+    dev: false
+    engines:
+      node: 4.x || >=6.0.0
+    resolution:
+      integrity: sha1-q4hOjn5X44qUR1POxwb3iNF2i7U=
+  /sandwich-stream/1.0.0:
+    dev: false
+    engines:
+      node: '>= 0.10'
+    resolution:
+      integrity: sha1-eDDkV5e1kzKH8fmyj4cZB0ViYvI=
+  /telegraf/3.21.2:
+    dependencies:
+      '@types/node': 10.5.2
+      debug: 3.1.0
+      node-fetch: 2.1.2
+      sandwich-stream: 1.0.0
+      telegram-typings: 3.6.1
+      typescript: 2.9.2
+    dev: false
+    engines:
+      node: '>=6.2.0'
+    resolution:
+      integrity: sha512-hstPgYodQZuPN3yEZp1FRfeawz7yxrLx0C7KYYz4v4BPF53PnWYTpbwl4bg+VCRf0B/YIN1dYo/wZVQIxTWArw==
+  /telegram-typings/3.6.1:
+    dev: false
+    resolution:
+      integrity: sha512-njVv1EAhIZnmQVLocZEADYUyqA1WIXuVcDYlsp+mXua/XB0pxx+PKtMSPeZ/EE4wPWTw9h/hA9ASTT6yQelkiw==
+  /typescript/2.9.2:
+    dev: false
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
+registry: 'https://registry.npmjs.org/'
+shrinkwrapMinorVersion: 8
+shrinkwrapVersion: 3
+specifiers:
+  telegraf: ^3.21.2
