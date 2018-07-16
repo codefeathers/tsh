@@ -1,16 +1,17 @@
 {
-  "name": "@codefeathers/ssht",
-  "version": "0.0.1",
-  "description": "SSH over Telegram",
-  "main": "app.js",
-  "dependencies": {
-    "telegraf": "^3.21.2"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Pavan Jadhaw @pavanjadhaw",
-  "license": "MIT"
+	"name": "@codefeathers/tsh",
+	"version": "0.0.1",
+	"description": "Telegram Shell -- complete remote shell access over Telegram bot API",
+	"main": "app.js",
+	"dependencies": {
+		"telegraf": "^3.21.2"
+	},
+	"scripts": {
+		"start": "node app.js"
+	},
+	"author": "Pavan Jadhaw <@pavanjadhaw>",
+	"contributors": [
+		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
+	],
+	"license": "MIT"
 }
