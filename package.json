@@ -1,6 +1,6 @@
 {
 	"name": "@codefeathers/tsh",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Telegram Shell -- complete remote shell access over Telegram bot API",
 	"main": "app.js",
 	"dependencies": {
