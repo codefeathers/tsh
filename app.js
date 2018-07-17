@@ -37,7 +37,7 @@ const defaultShell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';
 
 bot.command('start',
 	ctx => {
-		ctx.replyWithHTML(`Welcome to tsh -- <code>Telegram Shell!</code><br><br>You are now connected to <code>${hostname}</code> as <strong>${username}</strong>`);
+		ctx.replyWithHTML(`Welcome to tsh -- <code>Telegram Shell!</code>\n\nYou are now connected to <code>${hostname}</code> as <strong>${username}</strong>`);
 		const newProc = spawn(defaultShell, {
 			cwd: home
 		});
