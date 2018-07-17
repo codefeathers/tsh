@@ -31,18 +31,14 @@ sessions.history = [];
 
 const getSession = sessionFinder(sessions);
 
-bot.use((ctx, next) =>
-	validator(ctx)
-		.then(next)
-		.catch(responder.fail(
-			`Username Not authenticated!`
-		)));
-
 // get os info
 const home  = os.homedir();
 const hostname = os.hostname();
 const username = os.userInfo().username;
 const defaultShell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';
+
+// Validate bot's master
+bot.use(validator);
 
 bot.command('start',
 	ctx => {
