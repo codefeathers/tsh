@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const { EOL } = require('os');
+const os = require('os');
 
 const Telegraf = require('telegraf');
 const { path } = require('./util/index.js');
@@ -21,18 +22,24 @@ const bot = new Telegraf(config.botApiKey);
 const sessions = [];
 sessions.history = [];
 
-bot.use((ctx, next) => 
+bot.use((ctx, next) =>
 	validator(ctx)
 		.then(next)
 		.catch(responder.fail(
 			`Username Not authenticated!`
 		)));
 
+// get os info
+const home  = os.homedir();
+const hostname = os.hostname();
+const username = os.userInfo().username;
+const defaultShell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';
+
 bot.command('start',
 	ctx => {
-		ctx.replyWithHTML('Welcome to tsh -- <code>Telegram Shell!</code>');
-		const newProc = spawn('bash', {
-			cwd: '/home'
+		ctx.replyWithHTML(`Welcome to tsh -- <code>Telegram Shell!</code><br><br>You are now connected to <code>${hostname}</code> as <strong>${username}</strong>`);
+		const newProc = spawn(defaultShell, {
+			cwd: home
 		});
 		newProc.stdout.setEncoding('utf8');
 		sessions.push(newProc);
