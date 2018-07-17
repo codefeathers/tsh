@@ -10,7 +10,7 @@ const Telegraf = require('telegraf');
 const config = require('./config.js');
 
 // Utils
-const { path } = require('./util/index.js');
+const { path, getText, extractCommand } = require('./util/index.js');
 
 // Lib
 const validator = require('./lib/validator.js');
@@ -65,8 +65,8 @@ bot.command('ls',
 
 bot.command('attach',
 	ctx => {
-		const text = path(['update', 'message', 'text'], ctx);
-		const sessionIndex = parseInt(text.replace('/attach ', '').trim());
+		const text = getText(ctx);
+		const sessionIndex = parseInt(extractCommand('attach')(text));
 		if(Number.isNaN(sessionIndex) || !sessions[sessionIndex])
 			return responder.fail('Session not found. /ls for list of sessions')(ctx);
 		sessions.currentSession = sessions[sessionIndex];
@@ -76,8 +76,8 @@ bot.command('attach',
 
 bot.command('detach',
 	ctx => {
-		const text = path(['update', 'message', 'text'], ctx);
-		const sessionIndex = parseInt(text.replace('/detach ', '').trim());
+		const text = getText(ctx);
+		const sessionIndex = parseInt(extractCommand('detach')(text));
 		const currentSession =
 			text.trim() === '/detach'
 				? sessions.currentSession : sessions[sessionIndex];
@@ -90,8 +90,8 @@ bot.command('detach',
 
 bot.command('kill',
 	ctx => {
-		const text = path(['update', 'message', 'text'], ctx);
-		const sessionIndex = parseInt(text.replace('/kill ', '').trim());
+		const text = getText(ctx);
+		const sessionIndex = parseInt(extractCommand('kill')(text));
 		if(Number.isNaN(sessionIndex) || !sessions[sessionIndex])
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
 		const disconnect = sessions[sessionIndex];
