@@ -33,8 +33,6 @@ Try running `/start` in your bot's private.
 
 - `tsh` doesn't play well with commands that require password from stdin, like `sudo`, or any command that creates a new shell (like `bash`). As a workaround, you could use `sudo -S` to read password from stdin. These may be fixed in a later version.
 
-- Some times, the same response will be sent several times as the stream is triggered. This is fixable, and will be done soon.
-
 ## Security
 
 `tsh` is recommended to be used by a single user only, for your personal needs. Therefore, you must host your own bot on the server. Support for multiple machines may come in future.

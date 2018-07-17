@@ -15,6 +15,9 @@ const responder = require('./lib/responseHandler.js');
 const sessionFinder = require('./lib/sessionFinder.js');
 const listeners = require('./lib/listeners.js');
 
+// Utils
+const { extractCommandText } = require('./util/index.js');
+
 const dateOptions = {
 	weekday: 'long',
 	year: 'numeric',
@@ -45,20 +48,33 @@ bot.command('start',
 		const newProc = spawn(defaultShell, {
 			cwd: home
 		});
-		newProc.identifier = identifierState;
+		const identifier = extractCommandText('start')(ctx);
+		if(identifier) newProc.identifier = identifier;
+		else newProc.identifier = identifierState;
+		newProc.index = identifierState;
 		sessions[identifierState] = newProc;
 		identifierState++;
 		sessions.currentSession = newProc;
 		listeners.add(sessions.currentSession, responder, ctx);
-		return ctx.replyWithHTML(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
+		return responder.success(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
 			+ `You are now connected to <code>${hostname}</code>`
-			+ ` as <strong>${username}</strong>`);
+			+ ` as <strong>${username}</strong>.`,
+			'html'
+		)(ctx);
+	});
+
+bot.command('save',
+	ctx => {
+		const identifier = extractCommandText('save')(ctx);
+		if(!identifier) return responder.fail('Need a valid identifier to save session.')(ctx);
+		sessions.currentSession.identifier = identifier;
+		return responder.success(`Saved session <code>${identifier}</code>.`, 'html')(ctx);
 	});
 
 bot.command('ls',
 	ctx => ctx.reply(
-		sessions.reduce((acc, _, index) =>
-			acc ? `${acc}\n${index}` : `${index}`, '')
+		sessions.reduce((acc, session) =>
+			acc ? `${acc}\n${session.identifier}` : `${session.identifier}`, '')
 		|| `No sessions found. Start one with /start.`
 	));
 
@@ -87,9 +103,9 @@ bot.command('kill',
 		const session = getSession(ctx)('kill') || sessions.currentSession;
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
-		delete sessions[session.identifier];
-		if(session === sessions.currentSession) sessions.currentSession = undefined;
 		session.kill();
+		delete sessions[session.index];
+		if(session === sessions.currentSession) sessions.currentSession = undefined;
 		ctx.reply('Session killed. /ls for list of sessions.')
 	})
 
