@@ -3,6 +3,17 @@ const { spawn } = require('child_process');
 const { EOL } = require('os');
 const os = require('os');
 
+// Runtime
+const runtime = {
+	home: os.homedir(),
+	hostname: os.hostname(),
+	username: os.userInfo().username,
+	shell: os.platform() === 'win32' ? 'cmd.exe' : 'bash',
+	sessions: [],
+	identifierState: 0,
+	history: [],
+}
+
 // Modules
 const Telegraf = require('telegraf');
 
@@ -28,37 +39,27 @@ const dateOptions = {
 };
 
 const bot = new Telegraf(config.botApiKey);
-const sessions = [];
-let identifierState = 0;
-sessions.history = [];
-
-const getSession = sessionFinder(sessions);
-
-// get os info
-const home  = os.homedir();
-const hostname = os.hostname();
-const username = os.userInfo().username;
-const defaultShell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';
+const getSession = sessionFinder(runtime.sessions);
 
 // Validate bot's master
 bot.use(validator);
 
 bot.command('start',
 	ctx => {
-		const newProc = spawn(defaultShell, {
-			cwd: home
+		const newProc = spawn(runtime.shell, {
+			cwd: runtime.home
 		});
 		const identifier = extractCommandText('start')(ctx);
 		if(identifier) newProc.identifier = identifier;
-		else newProc.identifier = identifierState;
-		newProc.index = identifierState;
-		sessions[identifierState] = newProc;
-		identifierState++;
-		sessions.currentSession = newProc;
-		listeners.add(sessions.currentSession, responder, ctx);
+		else newProc.identifier = runtime.identifierState;
+		newProc.index = runtime.identifierState;
+		runtime.sessions[runtime.identifierState] = newProc;
+		runtime.identifierState++;
+		runtime.sessions.currentSession = newProc;
+		listeners.add(runtime.sessions.currentSession, responder, ctx);
 		return responder.success(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
-			+ `You are now connected to <code>${hostname}</code>`
-			+ ` as <strong>${username}</strong>.`,
+			+ `You are now connected to <code>${runtime.hostname}</code>`
+			+ ` as <strong>${runtime.username}</strong>.`,
 			'html'
 		)(ctx);
 	});
@@ -67,13 +68,13 @@ bot.command('save',
 	ctx => {
 		const identifier = extractCommandText('save')(ctx);
 		if(!identifier) return responder.fail('Need a valid identifier to save session.')(ctx);
-		sessions.currentSession.identifier = identifier;
+		runtime.sessions.currentSession.identifier = identifier;
 		return responder.success(`Saved session <code>${identifier}</code>.`, 'html')(ctx);
 	});
 
 bot.command('ls',
 	ctx => ctx.reply(
-		sessions.reduce((acc, session) =>
+		runtime.sessions.reduce((acc, session) =>
 			acc ? `${acc}\n${session.identifier}` : `${session.identifier}`, '')
 		|| `No sessions found. Start one with /start.`
 	));
@@ -83,41 +84,41 @@ bot.command('attach',
 		const session = getSession(ctx)('attach');
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions')(ctx);
-		sessions.currentSession = session;
-		listeners.add(sessions.currentSession, responder, ctx);
+		runtime.sessions.currentSession = session;
+		listeners.add(runtime.sessions.currentSession, responder, ctx);
 		return responder.success(`Reattached to shell ${session.identifier}`)(ctx);
 	});
 
 bot.command('detach',
 	ctx => {
-		const session = getSession(ctx)('detach') || sessions.currentSession;
+		const session = getSession(ctx)('detach') || runtime.sessions.currentSession;
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
 		listeners.remove(session);
-		sessions.currentSession = undefined;
+		runtime.sessions.currentSession = undefined;
 		return responder.success(`Detached from shell ${session.identifier}`)(ctx);
 	});
 
 bot.command('kill',
 	ctx => {
-		const session = getSession(ctx)('kill') || sessions.currentSession;
+		const session = getSession(ctx)('kill') || runtime.sessions.currentSession;
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
 		session.kill();
-		delete sessions[session.index];
-		if(session === sessions.currentSession) sessions.currentSession = undefined;
+		delete runtime.sessions[session.index];
+		if(session === runtime.sessions.currentSession) runtime.sessions.currentSession = undefined;
 		ctx.reply('Session killed. /ls for list of sessions.')
 	})
 
 bot.use(ctx => {
-	if(!sessions.currentSession)
+	if(!runtime.sessions.currentSession)
 		return responder.fail(`No active session. `
 			+ `Start one with /start or view list of sessions by sending /ls.`)(ctx);
 	const cmd = ctx.update.message.text;
 	const history = `${new Date().toLocaleDateString('en-IN', dateOptions)}: ${cmd}`;
-	sessions.history.push(history);
+	runtime.history.push(history);
 	console.log(history);
-	sessions.currentSession.stdin.write(cmd + EOL);
+	runtime.sessions.currentSession.stdin.write(cmd + EOL);
 });
 
 bot.startPolling();
