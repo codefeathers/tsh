@@ -37,15 +37,17 @@ const defaultShell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';
 
 bot.command('start',
 	ctx => {
-		ctx.replyWithHTML(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
-			+ `You are now connected to <code>${hostname}</code>`
-			+ ` as <strong>${username}</strong>`);
 		const newProc = spawn(defaultShell, {
 			cwd: home
 		});
 		newProc.stdout.setEncoding('utf8');
 		sessions.push(newProc);
 		sessions.currentSession = newProc;
+		sessions.currentSession.stdout.on('data', d => responder.success(d)(ctx));
+		sessions.currentSession.stderr.on('data', e => responder.success(e)(ctx));
+		return ctx.replyWithHTML(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
+			+ `You are now connected to <code>${hostname}</code>`
+			+ ` as <strong>${username}</strong>`);
 	});
 
 bot.command('ls',
@@ -62,6 +64,8 @@ bot.command('attach',
 		if(Number.isNaN(sessionIndex) || !sessions[sessionIndex])
 			return responder.fail('Session not found. /ls for list of sessions')(ctx);
 		sessions.currentSession = sessions[sessionIndex];
+		sessions.currentSession.stdout.on('data', d => responder.success(d)(ctx));
+		sessions.currentSession.stderr.on('data', e => responder.success(e)(ctx));
 		return responder.success(`Reattached to shell ${sessionIndex}`)(ctx);
 	});
 
@@ -74,6 +78,8 @@ bot.command('detach',
 				? sessions.currentSession : sessions[sessionIndex];
 		if(!currentSession)
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
+		sessions.currentSession.stdout.removeAllListeners('data');
+		sessions.currentSession.stderr.removeAllListeners('data');
 		sessions.currentSession = undefined;
 		return responder.success(`Detached from shell ${sessionIndex}`)(ctx);
 	});
@@ -100,8 +106,6 @@ bot.use(ctx => {
 	sessions.history.push(history);
 	console.log(history);
 	sessions.currentSession.stdin.write(cmd + EOL);
-	sessions.currentSession.stdout.on('data', d => responder.success(d)(ctx));
-	sessions.currentSession.stderr.on('data', e => responder.success(e)(ctx));
 });
 
 bot.startPolling();
