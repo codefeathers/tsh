@@ -55,20 +55,27 @@ bot.command('start',
 		newProc.index = runtime.identifierState;
 		runtime.sessions[runtime.identifierState] = newProc;
 		runtime.identifierState++;
-		runtime.sessions.currentSession = newProc;
-		listeners.add(runtime.sessions.currentSession, responder, ctx);
+		runtime.currentSession = newProc;
+		listeners.add(runtime.currentSession, responder, ctx);
 		return responder.success(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
 			+ `You are now connected to <code>${runtime.hostname}</code>`
 			+ ` as <strong>${runtime.username}</strong>.`,
-			'html'
+			'html',
 		)(ctx);
+	});
+
+bot.command('shell',
+	ctx => {
+		const shell = extractCommandText('shell')(ctx);
+		runtime.shell = shell;
+		return responder.success(`Shell changed to ${shell}.`)(ctx);
 	});
 
 bot.command('save',
 	ctx => {
 		const identifier = extractCommandText('save')(ctx);
 		if(!identifier) return responder.fail('Need a valid identifier to save session.')(ctx);
-		runtime.sessions.currentSession.identifier = identifier;
+		runtime.currentSession.identifier = identifier;
 		return responder.success(`Saved session <code>${identifier}</code>.`, 'html')(ctx);
 	});
 
@@ -84,41 +91,41 @@ bot.command('attach',
 		const session = getSession(ctx)('attach');
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions')(ctx);
-		runtime.sessions.currentSession = session;
-		listeners.add(runtime.sessions.currentSession, responder, ctx);
+		runtime.currentSession = session;
+		listeners.add(runtime.currentSession, responder, ctx);
 		return responder.success(`Reattached to shell ${session.identifier}`)(ctx);
 	});
 
 bot.command('detach',
 	ctx => {
-		const session = getSession(ctx)('detach') || runtime.sessions.currentSession;
+		const session = getSession(ctx)('detach') || runtime.currentSession;
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
 		listeners.remove(session);
-		runtime.sessions.currentSession = undefined;
+		runtime.currentSession = undefined;
 		return responder.success(`Detached from shell ${session.identifier}`)(ctx);
 	});
 
 bot.command('kill',
 	ctx => {
-		const session = getSession(ctx)('kill') || runtime.sessions.currentSession;
+		const session = getSession(ctx)('kill') || runtime.currentSession;
 		if(!session)
 			return responder.fail('Session not found. /ls for list of sessions.')(ctx);
 		session.kill();
 		delete runtime.sessions[session.index];
-		if(session === runtime.sessions.currentSession) runtime.sessions.currentSession = undefined;
+		if(session === runtime.currentSession) runtime.currentSession = undefined;
 		ctx.reply('Session killed. /ls for list of sessions.')
 	})
 
 bot.use(ctx => {
-	if(!runtime.sessions.currentSession)
+	if(!runtime.currentSession)
 		return responder.fail(`No active session. `
 			+ `Start one with /start or view list of sessions by sending /ls.`)(ctx);
 	const cmd = ctx.update.message.text;
 	const history = `${new Date().toLocaleDateString('en-IN', dateOptions)}: ${cmd}`;
 	runtime.history.push(history);
 	console.log(history);
-	runtime.sessions.currentSession.stdin.write(cmd + EOL);
+	runtime.currentSession.stdin.write(cmd + EOL);
 });
 
 bot.startPolling();
