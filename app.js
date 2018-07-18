@@ -60,7 +60,7 @@ bot.command('start',
 		return responder.success(`Welcome to tsh -- <code>Telegram Shell!</code>\n\n`
 			+ `You are now connected to <code>${runtime.hostname}</code>`
 			+ ` as <strong>${runtime.username}</strong>.`,
-			'html',
+			{ mode: 'html' },
 		)(ctx);
 	});
 
@@ -76,7 +76,10 @@ bot.command('save',
 		const identifier = extractCommandText('save')(ctx);
 		if(!identifier) return responder.fail('Need a valid identifier to save session.')(ctx);
 		runtime.currentSession.identifier = identifier;
-		return responder.success(`Saved session <code>${identifier}</code>.`, 'html')(ctx);
+		return responder.success(
+			`Saved session <code>${identifier}</code>.`,
+			{ mode: 'html' }
+		)(ctx);
 	});
 
 bot.command('ls',
